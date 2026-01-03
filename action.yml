@@ -1,0 +1,30 @@
+name: 'Install Dinghy CLI'
+description: 'Install Dinghy CLI for GitHub Actions'
+author: 'dinghydev'
+
+branding:
+  icon: 'package'
+  color: 'blue'
+
+inputs:
+  version:
+    description: 'Version of Dinghy CLI to install (e.g., "latest" or "1.0.0")'
+    required: false
+    default: 'latest'
+
+outputs:
+  version:
+    description: 'The installed version of Dinghy CLI'
+    value: ${{ steps.install.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Dinghy CLI
+      id: install
+      shell: bash
+      env:
+        DINGHY_VERSION: ${{ inputs.version }}
+      run: |
+        echo "Installing Dinghy CLI version: $DINGHY_VERSION"
+        echo "version=$DINGHY_VERSION" >> $GITHUB_OUTPUT
