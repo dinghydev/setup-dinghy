@@ -1,5 +1,5 @@
-name: 'Install Dinghy CLI'
-description: 'Install Dinghy CLI for use in GitHub Actions workflows'
+name: 'Setup Dinghy'
+description: 'Setup Dinghy for use in GitHub Actions workflows'
 
 inputs:
   prepare-images:
@@ -21,18 +21,23 @@ runs:
       run: |
 
         echo "::group::Install Dinghy CLI"
-        ENGINE_VERSION="0.0.0"
-        if [ -f ".dinghyrc" ]; then
-          while IFS= read -r line || [ -n "$line" ]; do
-            case "$line" in
-              DINGHY_ENGINE_VERSION=*)
-                ENGINE_VERSION="${line#DINGHY_ENGINE_VERSION=}"
-                break
-                ;;
-            esac
-          done < ".dinghyrc"
-        fi  
-        curl -fsSL "https://get.dinghy.dev/install.sh?source=github-action&engine-version=$ENGINE_VERSION" | sh
+        DINGHY_VERSION="${DINGHY_CLI_VERSION:-0.0.0}"
+        if [ "$DINGHY_VERSION" = "0.0.0" ]; then
+          if [ -f ".dinghyrc" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              case "$line" in
+                DINGHY_ENGINE_VERSION=*)
+                  DINGHY_VERSION="${line#DINGHY_ENGINE_VERSION=}"
+                  break
+                  ;;
+              esac
+            done < ".dinghyrc"
+          fi  
+          if [ "$DINGHY_VERSION" != "0.0.0" ]; then
+            export DINGHY_VERSION="$DINGHY_VERSION"
+          fi
+        fi
+        curl -fsSL "https://get.dinghy.dev/install.sh?source=github-action&version=$DINGHY_VERSION" | sh
         export PATH="$HOME/.dinghy/bin:$PATH"
         echo "::endgroup::"
         
