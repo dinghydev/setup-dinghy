@@ -19,23 +19,24 @@ runs:
       id: install-dinghy-cli
       shell: bash
       run: |
-
         echo "::group::Install Dinghy CLI"
-        DINGHY_VERSION="${DINGHY_CLI_VERSION:-0.0.0}"
-        if [ "$DINGHY_VERSION" = "0.0.0" ]; then
-          DINGHYRC="${APP_HOME:-.}/.dinghyrc"
-          if [ -f "$DINGHYRC" ]; then
-            while IFS= read -r line || [ -n "$line" ]; do
-              case "$line" in
-                DINGHY_ENGINE_VERSION=*)
-                  DINGHY_VERSION="${line#DINGHY_ENGINE_VERSION=}"
-                  break
-                  ;;
-              esac
-            done < "$DINGHYRC"
-          fi  
-          if [ "$DINGHY_VERSION" != "0.0.0" ]; then
-            export DINGHY_VERSION="$DINGHY_VERSION"
+        if [ -z "$DINGHY_VERSION" ]; then
+          DINGHY_VERSION="${DINGHY_CLI_VERSION:-latest}"
+          if [ "$DINGHY_VERSION" = "latest" ]; then
+            DINGHYRC="${APP_HOME:-.}/.dinghyrc"
+            if [ -f "$DINGHYRC" ]; then
+              while IFS= read -r line || [ -n "$line" ]; do
+                case "$line" in
+                  DINGHY_ENGINE_VERSION=*)
+                    DINGHY_VERSION="${line#DINGHY_ENGINE_VERSION=}"
+                    break
+                    ;;
+                esac
+              done < "$DINGHYRC"
+            fi  
+            if [ "$DINGHY_VERSION" != "latest" ]; then
+              export DINGHY_VERSION="$DINGHY_VERSION"
+            fi
           fi
         fi
         curl -fsSL "https://get.dinghy.dev/install.sh?source=github-action&version=$DINGHY_VERSION" | sh
